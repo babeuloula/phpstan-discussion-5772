@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    paths:
+        - src/Controller
+
+services:
+	-
+		class: App\PHPStan\CheckInstanceOfExtension
+		tags:
+			- phpstan.typeSpecifier.methodTypeSpecifyingExtension
