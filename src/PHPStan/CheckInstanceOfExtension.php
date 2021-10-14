@@ -52,7 +52,7 @@ class CheckInstanceOfExtension implements MethodTypeSpecifyingExtension, TypeSpe
         return $this->typeSpecifier->create(
             $node->args[1]->value,
             new ObjectType($classType->getValue()),
-            $context
+            TypeSpecifierContext::createTrue(),
         );
     }
 }
