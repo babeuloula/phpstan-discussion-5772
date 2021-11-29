@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\PHPStan;
 
-use App\Contract\CheckInstanceOfInterface;
+use App\Contract\IsInstanceOfInterface;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
@@ -15,11 +15,12 @@ use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
 use PHPStan\Type\ObjectType;
-use PHPStan\Type\ThisType;
-use PHPStan\Type\Type;
-use PHPStan\Type\UnionType;
 
-class CheckInstanceOfExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
+/**
+ * @see IsInstanceOfInterface
+ * @see IsInstanceOfTrait
+ */
+class IsInstanceOfExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     protected TypeSpecifier $typeSpecifier;
 
@@ -30,19 +31,31 @@ class CheckInstanceOfExtension implements MethodTypeSpecifyingExtension, TypeSpe
 
     public function getClass(): string
     {
-        return CheckInstanceOfInterface::class;
+        return IsInstanceOfInterface::class;
     }
 
-    public function isMethodSupported(MethodReflection $methodReflection, MethodCall $node, TypeSpecifierContext $context): bool
-    {
-        return 'isInstanceOf' === $methodReflection->getName()
+    public function isMethodSupported(
+        MethodReflection $methodReflection,
+        MethodCall $node,
+        TypeSpecifierContext $context
+    ): bool {
+        if ('isInstanceOf' === $methodReflection->getName()
             && true === $context->null()
             && \count($node->args) >= 2
-        ;
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
-    public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-    {
+    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+    public function specifyTypes(
+        MethodReflection $methodReflection,
+        MethodCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
         $classType = $scope->getType($node->args[0]->value);
 
         if (false === $classType instanceof ConstantStringType) {

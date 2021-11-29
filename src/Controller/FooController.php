@@ -2,18 +2,19 @@
 
 namespace App\Controller;
 
-use App\Contract\CheckInstanceOfInterface;
+use App\Contract\IsInstanceOfInterface;
 use App\Entity\Company;
 use App\Entity\User;
-use App\Traits\CheckInstanceOfTrait;
+use App\Traits\IsInstanceOfTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
-class FooController extends AbstractController implements CheckInstanceOfInterface
+class FooController extends AbstractController implements IsInstanceOfInterface
 {
-    use CheckInstanceOfTrait;
+    use IsInstanceOfTrait;
 
     /**
      * @Route("/foo", name="foo")
@@ -26,6 +27,11 @@ class FooController extends AbstractController implements CheckInstanceOfInterfa
         $this->isInstanceOf(
             Company::class,
             $user->getCompany(),
+            BadRequestHttpException::class,
+            'Unable to find company.',
+            [
+                'user' => $user,
+            ],
         );
 
         return $this->json([
